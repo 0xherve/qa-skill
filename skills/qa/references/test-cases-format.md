@@ -93,7 +93,7 @@ Good: `Verify organization members can be filtered by role and status.`
 ### Naming
 `TC[number]_[Module]_[Action]` — zero-padded number, singular PascalCase module,
 PascalCase business action (not a UI action).
-Good: `TC10_Organization_Create`. Bad: `TC10_Organisations_Form`.
+Good: `TC10_Organization_Create`. Bad: `TC5_Organisations_Form`.
 
 ## Other formats
 

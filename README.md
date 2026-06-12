@@ -1,211 +1,149 @@
-# QA Manual Testing Workflow
+# QA Skill
 
-## description: 
+A skill that turns an AI agent into a manual-QA assistant. The agent drives a browser
+to **explore** a web app, **draft** test cases, and **run** them — doing the repetitive,
+mechanical parts of manual testing while a human stays in the loop for judgment.
 
-Use this skill at the start of every Claude in Chrome thread where QA testing is involved.
-Covers two modes: 
+It works with [Claude Code](https://docs.claude.com/en/docs/claude-code) and any agent
+that can load a skill and reach a browser through an MCP server.
 
-1. Exploration — Claude navigates the app to discover features and generate test cases formatted for the test case sheet
-2. Test Run — Claude executes already-documented test cases step by step, and produces results formatted for the test steps sheet. 
+## What it does
 
-Overview
+The agent does the menial QA work — navigating the app, writing test cases, executing
+them, recording results — so a QA engineer can focus on deciding what's a real bug. It
+never decides that for you: it gives you clear evidence, an honest read, and routes
+doubt to "Uncertain" for you to settle.
 
-Two modes. Confirm with the user which one applies at the start of the thread.
+Three things it can do:
 
----
+| Mode | What it does |
+|------|--------------|
+| **explore** | Navigates the app (whole app or a module), discovers features, and drafts test cases. Drafts only — it doesn't run them. |
+| **run** | Executes existing test cases, records pass/fail/uncertain/skipped, and updates their status. Flags any UI drift or uncovered features in the report. |
+| **update** | Re-explores the app, fixes test cases whose steps drifted, adds cases for new features, retires removed ones. |
 
-Mode 1: Exploration (Discover & Draft Test Cases)
+It finishes the whole batch and reports at the end — no babysitting each step.
 
-Use when: no test cases exist yet; user wants Claude to explore a module or the full app.
+## How to use it
 
-Step 1 — Navigate & Explore
+```
+/qa [explore|run|update] [scope]
+```
 
-* Ask the user for the app URL and which module (or “full app”) to explore.
-* Navigate through every visible feature, page, button, form, and state in that scope.
-* Take note of: what each feature does, what inputs it accepts, what outcomes are possible, edge cases visible from the UI (empty states, validations, error messages, limits).
+- **mode** — `explore`, `run`, or `update`. Omit it and the agent asks.
+- **scope** — `all`, or one or more module names (comma-separated). Omit it and the
+  agent asks.
 
-Step 2 — Confirm Feature Inventory
+Examples:
 
-Before writing test cases, present a bulleted feature inventory grouped by module/page. Ask the user to confirm, remove, or add anything before proceeding.
+```
+/qa explore all                   # discover the whole app and draft test cases
+/qa run documents                 # run the Documents test suite
+/qa update organisation,reviews   # bring two modules' cases back in line with the app
+```
 
-Example:
+If you just type `/qa`, the agent asks which mode and scope before doing anything.
 
-Module: Organisation
-- Create Organisation (form with logo upload, ratings, certifications)
-- Edit Organisation
-- View Organisation Profile (tabs: Profile, Members, Invitations, Documents, Facilities)
-- Member management (invite, add peer, change role, remove)
-- Organisation overview stats
+## Setting up the browser MCP
 
-Step 3 — Output Test Cases
-
-For each confirmed feature, output a table row per test case in this exact column order, ready to paste into the sheet:
-
-Column 1	Column 2	Column 3	Column 4	Column 5	Column 6	Column 7	Column 8
-S. NO	Test Case Status	Test Case Name	Test Case Description	Notes	Owner	Product	Method
-
-
-Rules:
-
-* S. NO: sequential integer continuing from where the user’s sheet left off (ask if unknown, default to 1)
-* Test Case Status: always To be done
-* Test Case Name: TC##_Module_Action — see naming rules below
-* Test Case Description: one sentence — see description rules below
-* Notes: leave blank unless something is ambiguous or worth flagging
-* Owner: ask user, default QA Team
-* Product: ask user, default to app name observed during exploration
-* Method: always Manual
-
-After outputting, ask: “Anything to add, remove, or rename before we move to test steps?”
-
----
-
-Mode 2: Test Run (Execute Documented Test Cases)
-
-Use when: test cases already exist (pasted from sheet or described by user).
-
-Step 1 — Load Test Cases
-
-Ask the user to paste the test cases from the sheet (S. NO, Test Case Name, Description minimum).
-
-Step 2 — Human-in-the-Loop Execution
-
-For each test case, one at a time:
-
-1. Announce which test case you’re starting.
-2. Navigate the app and execute the steps.
-3. After each logical step group, pause and report what you observed before moving on.
-4. At the end of the test case, present the result rows (see output format below).
-5. Ask: “Confirmed? Any corrections before I move to the next one?” — wait for response.
-
-Skipping Test Cases
-
-Skip a test case entirely (do not attempt it) if it requires any of the following:
-
-* File uploads (documents, images, PDFs)
-* Email verification or reading inbox content
-* OTP or authentication code entry
-* Actions that require credentials not provided
-* Any operation that cannot be completed through browser navigation alone
-
-When skipping, output one line:
-
-⏭ Skipped: [TC Name] — requires [reason]. Run manually.
-
-Then move to the next test case without waiting for confirmation.
-
-Step 3 — Output Test Steps
-
-For each executed step group, output a table row in this exact column order, ready to paste into the sheet:
-
-Column 1	Column 2	Column 3	Column 4	Column 5	Column 6	Column 7	Column 8	Column 9	Column 10
-Test Case	Index	Test Steps	Input	Expected Result	Actual Result	Status	Review Description	Remarks	Jam Link
-
-
-Column rules:
-
-* Test Case: exact TC name from the test case sheet
-* Index: sequential integer per test case, starting at 1
-* Test Steps: see step writing rules below
-* Input: exact values entered or buttons clicked
-* Expected Result: see expected result rules below
-* Actual Result: As Expected if matched; otherwise describe the deviation specifically
-* Status: Passed, Failed, or To be clarified
-* Review Description: see review description rules below; blank if Passed
-* Remarks: additional observations, suggestions; blank if none
-* Jam Link: paste if user provides one, otherwise blank
-
-Handling Failures
-
-If a step fails:
-
-* Stop that test case.
-* Output what you have so far with Status Failed.
-* State clearly: what was expected, what happened, at which step.
-* Ask: “Do you want to log this and move on, or investigate further?”
-
----
-
-Naming Rules (Test Case Names)
-
-Format: TC##_Module_Action
-
-* ## is zero-padded number (01, 02, … 23)
-* Module: singular, PascalCase (Document, Organization, Review, Expert)
-* Action: PascalCase business action, not UI action
-* Words separated by underscores
-
-Good: TC01_Document_Upload, TC10_Organization_Create, TC23_Review_Manage_Assigned_Reviewers
-Bad: TC01_Documents_ClickUploadButton, TC10_Organisations_Form
-
----
-
-Description Rules (Test Case Description)
-
-Format: Start with “Verify” or “Check”. Describe the business outcome in one sentence.
-
-* Describe what the user can accomplish, not what they click
-* One capability per test case
-* No UI actions (no “clicks”, “enters”, “presses”)
-
-Good: Verify Platform Admin can upload a document through the complete workflow.
-Good: Verify organization members can be filtered by role and status.
-Bad: Verify user clicks Comments, enters text, and presses Save.
-
----
-
-Step Writing Rules (Test Steps column)
-
-* One action per line, numbered
-* Short — verb + target only
-* Use actual page names and button labels as they appear in the UI
-
-Good:
-
-1. Navigate to Public Library.
-2. Open a document.
-3. Click Comments.
-4. Add a comment.
-5. Click Save.
-
-Bad:
-
-1. Navigate to Public Library and open a document and add a comment and save it.
-
----
-
-Expected Result Rules
-
-* Describe what should be visible or true after the step
-* Include: success/error messages (exact text if visible), redirects, status changes, counts, UI state
-* Specific enough for a clear Pass/Fail decision
-
-Good:
-
-* Success toast displayed: "Document Submitted Successfully."
-* User redirected to Public Library.
-* Document status shown as Submitted.
-
-Bad: It works correctly.
-
----
-
-Remarks Rules
-
-Use only for: defects, requirement gaps, missing coverage, UX improvements.
-Leave blank when Status is Passed with no observations.
-Always ask the user to attach a Jam link if reporting a defect.
-
-Good: AI standardization stuck at 48%.
-Good: Label should read "Select Changes Type" not "Choose Latest Version".
-Good: Add loading indicator during document upload.
-
----
-
-General Rules
-
-* Never skip human confirmation between test cases in Mode 2 (except skipped cases).
-* Never fabricate expected results — derive only from observable UI: labels, messages, validation text. Flag if unsure.
-* Exact column order matters — users paste directly into the sheet.
-* If the user pastes existing test cases at the start of the thread, infer the mode automatically and proceed without asking.
-* If both exploration and test run are needed in one session, complete Mode 1 fully and get sign-off before switching to Mode 2.
+The agent needs a browser it can drive, exposed through an MCP server. The skill is
+tool-agnostic — it works in terms of actions (navigate, click, type, read page,
+screenshot) and maps them to whatever server is configured. Any of these work:
+
+- **Playwright MCP** (`@playwright/mcp`) — recommended; cross-browser and well-supported.
+- **Chrome DevTools MCP** — drives a real Chrome instance.
+- Any other browser MCP server.
+
+### Claude Code
+
+Add a browser MCP server, then check it's connected:
+
+```bash
+# Playwright MCP
+claude mcp add playwright -- npx -y @playwright/mcp@latest
+
+# verify
+claude mcp list
+```
+
+You can also add it to `.mcp.json` in the app's repo so the whole team shares the same
+setup:
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    }
+  }
+}
+```
+
+Then drop the `skills/qa/` folder where Claude Code loads skills (e.g.
+`.claude/skills/qa/`) and invoke with `/qa`.
+
+### Other agents (OpenCode, custom harnesses)
+
+1. Register the same browser MCP server with your agent (see its MCP docs — most take a
+   `command` + `args` like the JSON above).
+2. Point the agent at `skills/qa/SKILL.md` as its instructions. The references under
+   `skills/qa/references/` carry the detail; the agent reads them as needed.
+3. Give it access to the per-app repo (below) so it can read and write test cases.
+
+### Logging in
+
+The agent never handles credentials. **You log in first** in the browser the MCP server
+controls; the agent takes over that authenticated session. If the app isn't logged in,
+it stops and asks you to log in rather than guessing.
+
+## How work is organised
+
+You keep one repository per app under test. The agent reads and writes inside it:
+
+```
+test-cases/            # the test suite — markdown, the source of truth
+  <module>/
+    README.md          # module description + summary table with current status
+    TC01_<Action>.md   # one test case: steps, input, expected result, status
+runs/                  # run history — JSON, easy to query and diff
+  YYYY-MM-DD_HHMM/
+    report.json        # run summary (totals, failures, changes, notes)
+    <module>.json      # per-test-case results for that run
+```
+
+The markdown suite holds the **current** state; the `runs/` JSON holds the **history**.
+Each test case is numbered per module (every module starts at TC01), so adding or
+removing a module never forces a renumber.
+
+After a run, the agent prints a results table in the chat **and** saves the run JSON.
+
+## Statuses
+
+| Status | Meaning |
+|--------|---------|
+| **Passed** | Verified working, clear evidence. |
+| **Failed** | Confirmed broken — a genuine defect, not intended behaviour. |
+| **Uncertain** | Ran it, but the result is ambiguous; needs a human call. |
+| **Skipped** | Couldn't attempt it (upload, email, OTP) or too little signal to claim anything. |
+
+The agent commits to Pass/Fail only when it's confident; anything shaky becomes
+Uncertain, anything unobservable becomes Skipped. This keeps the "valid bug" rate high.
+
+## Layout
+
+```
+skills/
+  qa/
+    SKILL.md                       # the skill the agent loads
+    references/
+      voice.md                     # tone — read first
+      qa-workflow.md               # the three modes in detail
+      test-cases-format.md         # markdown structure + writing rules
+      status-confidence.md         # status enum + confidence rubric
+      runs-format.md               # JSON run history + report table
+      run-mechanics.md             # skipping, drift, failures, test data
+      browser-actions.md           # MCP-agnostic browser capabilities
+      excel-format.md              # column schemas + Excel reporting/navigation
+      collaboration-guidelines.md  # behaviour — when to act, pause, hand back
+```
