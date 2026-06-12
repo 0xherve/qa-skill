@@ -44,58 +44,37 @@ Examples:
 
 If you just type `/qa`, the agent asks which mode and scope before doing anything.
 
-## Setting up the browser MCP
+## Setting up the browser
 
-The agent needs a browser it can drive, exposed through an MCP server. The skill is
-tool-agnostic — it works in terms of actions (navigate, click, type, read page,
-screenshot) and maps them to whatever server is configured. Any of these work:
-
-- **Playwright MCP** (`@playwright/mcp`) — recommended; cross-browser and well-supported.
-- **Chrome DevTools MCP** — drives a real Chrome instance.
-- Any other browser MCP server.
-
-### Claude Code
-
-Add a browser MCP server, then check it's connected:
+This skill drives **Claude in Chrome** — your real Chrome window. Start Claude Code
+connected to it:
 
 ```bash
-# Playwright MCP
-claude mcp add playwright -- npx -y @playwright/mcp@latest
-
-# verify
-claude mcp list
+claude --chrome
 ```
 
-You can also add it to `.mcp.json` in the app's repo so the whole team shares the same
-setup:
-
-```json
-{
-  "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest"]
-    }
-  }
-}
-```
+That's the whole setup. The agent works in terms of actions (navigate, click, type,
+read page, screenshot) against the browser you're already using, so there's nothing else
+to install. (The skill itself is tool-agnostic, so any other browser MCP server would
+also work, but Claude in Chrome is the default.)
 
 Then drop the `skills/qa/` folder where Claude Code loads skills (e.g.
 `.claude/skills/qa/`) and invoke with `/qa`.
 
-### Other agents (OpenCode, custom harnesses)
-
-1. Register the same browser MCP server with your agent (see its MCP docs — most take a
-   `command` + `args` like the JSON above).
-2. Point the agent at `skills/qa/SKILL.md` as its instructions. The references under
-   `skills/qa/references/` carry the detail; the agent reads them as needed.
-3. Give it access to the per-app repo (below) so it can read and write test cases.
-
 ### Logging in
 
-The agent never handles credentials. **You log in first** in the browser the MCP server
-controls; the agent takes over that authenticated session. If the app isn't logged in,
-it stops and asks you to log in rather than guessing.
+The agent never handles credentials. **You log in first** in your own Chrome session;
+the agent takes over from there. If the app isn't logged in, it stops and asks you to
+log in rather than guessing.
+
+### Other agents (OpenCode, custom harnesses)
+
+The skill is plain markdown and isn't tied to Claude Code:
+
+1. Give your agent a browser it can drive (any browser MCP server).
+2. Point it at `skills/qa/SKILL.md` as its instructions. The references under
+   `skills/qa/references/` carry the detail; the agent reads them as needed.
+3. Give it access to the per-app repo (below) so it can read and write test cases.
 
 ## How work is organised
 

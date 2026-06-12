@@ -1,8 +1,7 @@
 # Browser Actions (MCP-agnostic)
 
-You drive a browser through whatever MCP server is configured — Playwright, Chrome
-DevTools, or another. The skill never hard-codes tool names. Think in **capabilities**;
-map them to whatever tools the configured server exposes.
+You drive a browser through whatever MCP server is configured. Think in **capabilities**; map them to whatever tools the
+configured server exposes.
 
 ## Capabilities you rely on
 
