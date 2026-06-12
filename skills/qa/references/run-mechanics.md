@@ -44,7 +44,7 @@ keeping `run` read-only on the suite.
 ## Failures — confirm, don't cry wolf
 
 Only mark `Failed` when you're confident it's a genuine defect, not intended behaviour
-(this protects the valid-bug-rate KPI). When unsure whether it's a real bug, mark
+(this protects your valid-bug rate). When unsure whether it's a real bug, mark
 `Uncertain` and let the human judge. For a real failure, record: what you expected, what
 happened, and at which step. Then continue to the next TC — one failure never aborts the
 run.

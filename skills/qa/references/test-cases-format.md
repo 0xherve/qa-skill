@@ -98,5 +98,4 @@ Good: `TC10_Organization_Create`. Bad: `TC5_Organisations_Form`.
 ## Other formats
 
 Markdown is primary. The same content can be expressed as Excel or JSON when a team
-needs it — see `documenting-test-cases.md` and `navigating-sheets.md`. Keep markdown
-the source of truth and export from it.
+needs it — see `excel-format.md`. Keep markdown the source of truth and export from it.
