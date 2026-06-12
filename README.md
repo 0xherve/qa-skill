@@ -24,6 +24,18 @@ Three things it can do:
 
 It finishes the whole batch and reports at the end — no babysitting each step.
 
+## Install
+
+Install into the repo where you do QA, using the [`skills`](https://skills.sh) CLI:
+
+```bash
+npx skills add 0xherve/qa-skill
+```
+
+This drops the skill into your agent's skills folder (`.claude/skills/qa/` for Claude
+Code, `.agents/skills/qa/` for OpenCode) and pins it in a lock file. Re-run the same
+command to update.
+
 ## How to use it
 
 ```
@@ -58,8 +70,7 @@ read page, screenshot) against the browser you're already using, so there's noth
 to install. (The skill itself is tool-agnostic, so any other browser MCP server would
 also work, but Claude in Chrome is the default.)
 
-Then drop the `skills/qa/` folder where Claude Code loads skills (e.g.
-`.claude/skills/qa/`) and invoke with `/qa`.
+Once installed (see [Install](#install)), invoke with `/qa`.
 
 ### Logging in
 
