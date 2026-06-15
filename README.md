@@ -26,7 +26,7 @@ It finishes the whole batch and reports at the end — no babysitting each step.
 
 ## Install
 
-Install into the repo where you do QA, using the [`skills`](https://skills.sh) CLI:
+Install into the folder where you do QA, using the [`skills`](https://skills.sh) CLI:
 
 ```bash
 npx skills add 0xherve/qa-skill
@@ -35,6 +35,26 @@ npx skills add 0xherve/qa-skill
 This drops the skill into your agent's skills folder (`.claude/skills/qa/` for Claude
 Code, `.agents/skills/qa/` for OpenCode) and pins it in a lock file. Re-run the same
 command to update.
+
+### Setting up the browser
+
+**Claude Code** — start with Chrome connected:
+
+```bash
+claude --chrome
+```
+
+**OpenCode or any other agent** — add the Browser MCP server:
+
+```bash
+npx -y @browsermcp/mcp@0.1.3
+```
+
+### Logging in
+
+The agent never handles credentials. **You log in first** in your own browser session;
+the agent takes over from there. If the app isn't logged in, it stops and asks you to
+log in rather than guessing.
 
 ## How to use it
 
@@ -56,40 +76,9 @@ Examples:
 
 If you just type `/qa`, the agent asks which mode and scope before doing anything.
 
-## Setting up the browser
-
-This skill drives **Claude in Chrome** — your real Chrome window. Start Claude Code
-connected to it:
-
-```bash
-claude --chrome
-```
-
-That's the whole setup. The agent works in terms of actions (navigate, click, type,
-read page, screenshot) against the browser you're already using, so there's nothing else
-to install. (The skill itself is tool-agnostic, so any other browser MCP server would
-also work, but Claude in Chrome is the default.)
-
-Once installed (see [Install](#install)), invoke with `/qa`.
-
-### Logging in
-
-The agent never handles credentials. **You log in first** in your own Chrome session;
-the agent takes over from there. If the app isn't logged in, it stops and asks you to
-log in rather than guessing.
-
-### Other agents (OpenCode, custom harnesses)
-
-The skill is plain markdown and isn't tied to Claude Code:
-
-1. Give your agent a browser it can drive (any browser MCP server).
-2. Point it at `skills/qa/SKILL.md` as its instructions. The references under
-   `skills/qa/references/` carry the detail; the agent reads them as needed.
-3. Give it access to the per-app repo (below) so it can read and write test cases.
-
 ## How work is organised
 
-You keep one repository per app under test. The agent reads and writes inside it:
+You keep one folder per app under test. The agent reads and writes inside it:
 
 ```
 test-cases/            # the test suite — markdown, the source of truth
