@@ -44,10 +44,12 @@ command to update.
 claude --chrome
 ```
 
-**OpenCode or any other agent** — add the Browser MCP server:
+**OpenCode or any other agent** — using the Browseruse MCP
 
+1. Install the Browser [MCP plugin](https://browsermcp.io/install), from [Browser MCP](https://browsermcp.io/)
+2. Setup the opencode configuration to make the MCP available for your agent:  
 ```bash
-npx -y @browsermcp/mcp@0.1.3
+npx opencode-browser init
 ```
 
 ### Logging in
@@ -116,13 +118,10 @@ skills/
   qa/
     SKILL.md                       # the skill the agent loads
     references/
-      voice.md                     # tone — read first
       qa-workflow.md               # the three modes in detail
       test-cases-format.md         # markdown structure + writing rules
-      status-confidence.md         # status enum + confidence rubric
       runs-format.md               # JSON run history + report table
       run-mechanics.md             # skipping, drift, failures, test data
       browser-actions.md           # MCP-agnostic browser capabilities
       excel-format.md              # column schemas + Excel reporting/navigation
-      collaboration-guidelines.md  # behaviour — when to act, pause, hand back
 ```

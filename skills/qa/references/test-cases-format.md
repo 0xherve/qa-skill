@@ -40,29 +40,52 @@ Keep in sync with TC files after every run.
 # TC01_Document_Upload
 
 **Description:** Verify Platform Admin can upload a document through the complete workflow.
-**Preconditions:** Logged in as Platform Admin.
-**Status:** Passed
+**Type:** Happy Path
+**Preconditions:**
+- Logged in as Platform Admin
+- At least one category exists in the system
+**Status:** Failed
 
 ## Steps
 
-| Index | Test Steps | Input | Expected Result |
-|-------|-----------|-------|-----------------|
-| 1 | 1. Navigate to Documents 2. Click Upload | N/A | Upload form displayed |
-| 2 | 1. Enter document title 2. Choose category | Valid title, a category | Standardization step shown |
-| 3 | 1. Confirm content 2. Click Submit | N/A | Success toast "Document Submitted Successfully." |
+| Index | Action | Input Data | Expected Result | Result |
+|-------|--------|------------|-----------------|--------|
+| 1 | Navigate to Documents | — | Documents page displayed | As expected |
+| 2 | Click Upload | — | Upload form displayed | As expected |
+| 3 | Enter document title | Valid title | Title field populated | As expected |
+| 4 | Choose category | A category | Category selected | Failed |
+| 5 | Click Continue | — | Standardization step shown | To be tested |
+| 6 | Confirm standardized content | — | Content displayed for review | To be tested |
+| 7 | Click Submit | — | Success toast "Document Submitted Successfully." Redirected to Public Library. | To be tested |
+
+## Remarks
+
+Step 4: Category dropdown was empty — no categories available to select.
 ```
 
-## Writing rules
+## Field rules
 
-- **Test Steps** — verb first, one action per line. Use the app's exact labels. No login steps.
-- **Input** — describe what to enter, not literal values. `N/A` if none.
-- **Expected Result** — observable state, exact message text where visible. Describe
-  *intended* behaviour, not just what the app happened to do. Never "it works."
 - **Description** — starts with "Verify"/"Check". One capability per TC. Business
   outcome, not clicks.
-- **Naming** — `TC[number]_[Module]_[Action]`, zero-padded, PascalCase.
-- **Indexing** — same route + same flow = same index. Modals are part of the same flow.
-- Empty cells get `N/A`.
+- **Type** — Happy Path, Negative, Edge Case, or Role-Based.
+- **Preconditions** — bullet list when multiple. Always assume logged in — never
+  list login as a step. Use a single line when there's only one precondition.
+- **Status** — Passed · Failed · Uncertain · Skipped. Drafts start `Skipped`.
+- **Action** — one action per row, verb first. Use the app's exact labels.
+- **Input Data** — describe what to enter, not literal values. `—` if none.
+- **Expected Result** — observable state, exact message text where visible. Describe
+  *intended* behaviour, not just what the app happened to do. Never "it works."
+- **Result** — `To be tested` on explore (draft). After a run: `As expected`,
+  `Failed`, or `To be clarified`. Details go in Remarks, not in the table.
+- **Remarks** — optional section. Only include when there's something worth noting
+  (quirks, known issues, environment-specific behavior). Omit entirely if nothing
+  to add.
+
+## Naming
+
+`TC[number]_[Module]_[Action]` — zero-padded number, singular PascalCase module,
+PascalCase business action.
+Good: `TC01_Document_Upload`. Bad: `TC5_Organisations_Form`.
 
 ## Confidence rubric
 

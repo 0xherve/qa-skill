@@ -25,8 +25,6 @@ interrupted run keeps its progress.
 {
   "module": "documents",
   "run": "2026-06-12_1430",
-  "app": "OpenDoc",
-  "url": "https://staging.opendoc.example",
   "results": [
     {
       "tc": "TC01_Document_Upload",
@@ -72,6 +70,7 @@ interrupted run keeps its progress.
 {
   "run": "2026-06-12_1430",
   "app": "OpenDoc",
+  "url": "https://staging.opendoc.example",
   "mode": "run",
   "scope": ["documents", "organisations"],
   "totals": { "passed": 10, "failed": 3, "uncertain": 1, "skipped": 2 },
