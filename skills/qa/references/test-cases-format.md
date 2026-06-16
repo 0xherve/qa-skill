@@ -1,54 +1,45 @@
-# Test Cases Format (markdown)
+# Test Cases Format
 
-The test suite is the source of truth. It lives under `test-cases/`, one folder per
-module. Markdown, because humans read and edit it directly.
+The test suite lives under `test-cases/`, one folder per module. Markdown is the
+source of truth.
 
 ```
 test-cases/
   <module>/
-    README.md            ← module description + summary table (current status)
-    TC01_<Action>.md     ← one test case
-    TC02_<Action>.md
+    README.md            ← module description + summary table
+    TC01_<Action>.md     ← one test case per file
 ```
 
 ## Module folder
 
-A **module** is a coherent area of the app — Documents, Organisations, Reviews,
-Publishing, Users. On first `explore`, you fix the canonical name for each module
-(folder name and the name used everywhere). Watch spelling: pick `Organisation` *or*
-`Organization` once and never mix. On later runs, reuse the exact existing folder
-names — never invent a variant.
+A **module** is a coherent area of the app (Documents, Organisations, Reviews).
+Fix the canonical name on first `explore` and reuse it exactly — never mix spellings.
 
-Modular numbering: **each module numbers from TC01.** Documents has its own TC01,
-Organisations has its own TC01. This way adding or removing a module never forces a
-renumber.
+Modular numbering: each module numbers from TC01.
 
 ## README.md (per module)
 
-A short description of what the module does, then a summary table with current status.
+Short description, then a summary table:
 
 ```markdown
 # Documents
 
-Upload, standardize, review, version, and publish policy documents. Covers the public
-library, drafts, comments, and the review workflow.
+Upload, standardize, review, and publish policy documents.
 
 | S.NO | TC Name | Description | Status |
 |------|---------|-------------|--------|
-| 1 | TC01_Document_Upload | Verify Platform Admin can upload a document through the complete workflow. | Passed |
-| 2 | TC02_Document_View_Uploaded | Verify uploaded documents appear in the Public Library with correct details. | Passed |
-| 3 | TC06_Document_Save_Draft | Verify Platform Admin can save an in-progress upload as a draft. | Failed |
+| 1 | TC01_Document_Upload | Verify Platform Admin can upload a document. | Passed |
+| 2 | TC02_Document_View | Verify uploaded documents appear in the Public Library. | Passed |
 ```
 
-Keep the table in sync with the TC files after every run.
+Keep in sync with TC files after every run.
 
-## TCxx_<Action>.md (per test case)
+## TC file template
 
 ```markdown
 # TC01_Document_Upload
 
-**Description:** Verify Platform Admin can upload a document through the complete
-workflow (upload, standardize, review, submit).
+**Description:** Verify Platform Admin can upload a document through the complete workflow.
 **Preconditions:** Logged in as Platform Admin.
 **Status:** Passed
 
@@ -57,45 +48,32 @@ workflow (upload, standardize, review, submit).
 | Index | Test Steps | Input | Expected Result |
 |-------|-----------|-------|-----------------|
 | 1 | 1. Navigate to Documents 2. Click Upload | N/A | Upload form displayed |
-| 2 | 1. Enter document title 2. Choose category 3. Click Continue | Valid title, a category | Standardization step shown |
-| 3 | 1. Confirm standardized content 2. Click Submit | N/A | Success toast "Document Submitted Successfully." Redirected to Public Library. Status shown as Submitted. |
+| 2 | 1. Enter document title 2. Choose category | Valid title, a category | Standardization step shown |
+| 3 | 1. Confirm content 2. Click Submit | N/A | Success toast "Document Submitted Successfully." |
 ```
 
-### Field rules
-- **Status** is the current status (see `status-confidence.md`). Drafts start `Skipped`.
-- **Preconditions** state the entry condition. Always assume logged in — never list
-  login as a step.
+## Writing rules
 
-### Steps are guidance, not a rigid script
-During a run you **follow** the steps, but the UI is the truth. If a label changed
-("Upload" → "Add Document"), adapt, complete the test, and flag the drift in the report.
-A changed label is not a failure on its own.
+- **Test Steps** — verb first, one action per line. Use the app's exact labels. No login steps.
+- **Input** — describe what to enter, not literal values. `N/A` if none.
+- **Expected Result** — observable state, exact message text where visible. Describe
+  *intended* behaviour, not just what the app happened to do. Never "it works."
+- **Description** — starts with "Verify"/"Check". One capability per TC. Business
+  outcome, not clicks.
+- **Naming** — `TC[number]_[Module]_[Action]`, zero-padded, PascalCase.
+- **Indexing** — same route + same flow = same index. Modals are part of the same flow.
+- Empty cells get `N/A`.
 
-### Writing rules
-- **Test Steps** — one action per numbered line, verb first, target only. Actions only;
-  verifications belong in Expected Result. Use the app's exact labels. Skip login.
-- **Input** — describe what to enter, not literal values (no real emails). "N/A" if none.
-- **Expected Result** — noun-led, observable state. Exact message text where visible.
-  Specific enough for a clean pass/fail. Never "it works". Describe *intended/correct*
-  behaviour, not merely what the app happened to do — or you enshrine a bug as expected.
-- All three columns: numbered lists when there are multiple items, plain text for one.
-  "N/A" for empty.
+## Confidence rubric
 
-### Indexing
-- Same route + same flow = same index. Modals and dialogs are part of the same flow.
-- No hard step limit per index; later indexes assume continuity from previous ones.
+Every executed result carries a confidence level that maps to status:
 
-### Description (the one-liner)
-Start with "Verify"/"Check". One capability per test case. Describe the business
-outcome, not what the user clicks (no "clicks"/"enters"/"presses").
-Good: `Verify organization members can be filtered by role and status.`
+| Confidence | What you observed | Default status |
+|------------|-------------------|----------------|
+| **High** | Expected result explicitly visible — exact toast, redirect, badge. No ambiguity. | Passed or Failed |
+| **Moderate** | Result inferred from UI state but no definitive message confirmed it. | Uncertain |
+| **Low** | No clear signal. Page changed but nothing confirmed success or failure. | Skipped |
 
-### Naming
-`TC[number]_[Module]_[Action]` — zero-padded number, singular PascalCase module,
-PascalCase business action (not a UI action).
-Good: `TC10_Organization_Create`. Bad: `TC5_Organisations_Form`.
-
-## Other formats
-
-Markdown is primary. The same content can be expressed as Excel or JSON when a team
-needs it — see `excel-format.md`. Keep markdown the source of truth and export from it.
+Commit to Pass/Fail only at High confidence. Moderate defaults to Uncertain — only
+promote to Pass/Fail when the evidence is strong but just short of explicit. Low means
+leave it for the human to verify manually.
