@@ -40,6 +40,17 @@ module JSON, skip TCs already recorded, continue.
 `run` updates current status on TC files and module READMEs, and writes to run JSON.
 It does **not** touch definitions — that's `update`'s job.
 
+## BRD validation
+
+Every run reads the BRD before executing. While running:
+
+- Cross-check observed results against BRD acceptance criteria, not just TC expected
+  results. A TC may pass its steps but still violate a BRD criterion.
+- When the app contradicts the BRD, the BRD is correct. Mark the TC result accordingly
+  and note the discrepancy in remarks.
+- After the run, compare all BRD ACs against existing TCs. Report untested ACs as
+  coverage gaps in `report.json`. Do not auto-draft TCs during a run.
+
 ## Uncovered features
 
 If you find a feature with no TC at all, name it in the report. Don't draft a TC

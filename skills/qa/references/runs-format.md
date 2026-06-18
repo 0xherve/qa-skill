@@ -78,11 +78,17 @@ interrupted run keeps its progress.
   "uncertain": ["TC15_Organizations_Invite_Admin"],
   "skipped": ["TC24_Organizations_Logo_Upload"],
   "changes": [],
+  "coverage_gaps": ["FR-03 AC-03-04: Platform Admin can modify user roles"],
+  "discrepancies": ["FR-01 AC-01-01: BRD says 10min expiry, app shows 5min"],
   "notes": "Documents upload-from-draft flow broken on staging."
 }
 ```
 
 - `changes` — only for `update` runs: renames, retired TCs, new TCs. Flag every change here.
+- `coverage_gaps` — BRD acceptance criteria not covered by any existing TC. List the
+  FR and AC ID with a short description. Empty array if fully covered.
+- `discrepancies` — cases where the app contradicts the BRD. List the FR/AC and what
+  differs. Empty array if none found.
 - `notes` — short, plain-language summary. Honest, no padding.
 
 ## The thread table

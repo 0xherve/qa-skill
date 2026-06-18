@@ -19,12 +19,14 @@ Modular numbering: each module numbers from TC01.
 
 ## README.md (per module)
 
-Short description, then a summary table:
+Short description, requirements reference, then a summary table:
 
 ```markdown
 # Documents
 
 Upload, standardize, review, and publish policy documents.
+
+**Requirements:** [BRD](../../requirements/documents/BRD.md) · [PD](../../requirements/documents/PD.md)
 
 | S.NO | TC Name | Description | Status |
 |------|---------|-------------|--------|
@@ -40,6 +42,7 @@ Keep in sync with TC files after every run.
 # TC01_Document_Upload
 
 **Description:** Verify Platform Admin can upload a document through the complete workflow.
+**Source:** requirements/documents/BRD.md — FR-01
 **Type:** Happy Path
 **Preconditions:**
 - Logged in as Platform Admin
@@ -67,6 +70,8 @@ Step 4: Category dropdown was empty — no categories available to select.
 
 - **Description** — starts with "Verify"/"Check". One capability per TC. Business
   outcome, not clicks.
+- **Source** — path to the BRD file and the FR being tested (e.g.
+  `requirements/authentication/BRD.md — FR-01`). Links the TC to its requirement.
 - **Type** — Happy Path, Negative, Edge Case, or Role-Based.
 - **Preconditions** — bullet list when multiple. Always assume logged in — never
   list login as a step. Use a single line when there's only one precondition.
